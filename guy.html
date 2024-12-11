@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Expense Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Expense Tracker</h1>
+    <form id="expense-form">
+      <input type="file" id="expense-file" required>
+      <input type="number" id="expense-amount" placeholder="Amount" required>
+      <button type="submit">Add Expense</button>
+    </form>
+    <table>
+      <thead>
+        <tr>
+          <th>File Name</th>
+          <th>Amount</th>
+          <th>Upload Time</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="expense-list">
+        <!-- Dynamically filled -->
+      </tbody>
+    </table>
+    <div class="total">
+      <h3>Total: $<span id="total-amount">0</span></h3>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
+document.addEventListener("DOMContentLoaded", () => {
+    const expenseForm = document.getElementById("expense-form");
+    const expenseFileInput = document.getElementById("expense-file");
+    const expenseAmountInput = document.getElementById("expense-amount");
+    const expenseList = document.getElementById("expense-list");
+    const totalAmountSpan = document.getElementById("total-amount");
+  
+    let totalAmount = 0;
+  
+    // Update total amount
+    const updateTotal = () => {
+      totalAmountSpan.textContent = totalAmount.toFixed(2);
+    };
+  
+    // Delete expense
+    const deleteExpense = (row, amount) => {
+      row.remove();
+      totalAmount -= amount;
+      updateTotal();
+    };
+  
+    // Add expense
+    expenseForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+  
+      const file = expenseFileInput.files[0];
+      const amount = parseFloat(expenseAmountInput.value);
+  
+      if (!file || isNaN(amount) || amount <= 0) {
+        alert("Please upload a file and enter a valid amount.");
+        return;
+      }
+  
+      const fileName = file.name;
+      const uploadTime = new Date().toLocaleString();
+  
+      // Create a new row
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${fileName}</td>
+        <td>$${amount.toFixed(2)}</td>
+        <td>${uploadTime}</td>
+        <td><button class="delete-btn">Delete</button></td>
+      `;
+  
+      // Add delete functionality to button
+      row.querySelector(".delete-btn").addEventListener("click", () => {
+        deleteExpense(row, amount);
+      });
+  
+      // Append to the list
+      expenseList.appendChild(row);
+  
+      // Update total
+      totalAmount += amount;
+      updateTotal();
+  
+      // Clear inputs
+      expenseFileInput.value = "";
+      expenseAmountInput.value = "";
+    });
+  });
+  
